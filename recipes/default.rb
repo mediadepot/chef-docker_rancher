@@ -1,10 +1,10 @@
 #
-# Cookbook Name:: chef-rancher
+# Cookbook Name:: docker-rancher
 # Recipe:: default
 #
-# Copyright (C) 2015 YOUR_NAME
+# Copyright (C) 2015 Jason Kulatunga
 #
-# All rights reserved - Do Not Redistribute
+# MIT
 #
 
 # start the docker service

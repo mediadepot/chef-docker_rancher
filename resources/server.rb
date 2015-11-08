@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: rancher
+# Cookbook Name:: docker-rancher
 # Resource:: rancher_server
 #
 # Copyright (C) 2015 Jason Kulatunga
