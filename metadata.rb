@@ -1,4 +1,4 @@
-name             'docker-rancher'
+name             'docker_rancher'
 maintainer       'Jason Kulatunga'
 maintainer_email 'jason@thesparktree.com'
 license          'MIT'

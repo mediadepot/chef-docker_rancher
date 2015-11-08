@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: docker-rancher
-# Provider:: rancher_server
+# Cookbook Name:: docker_rancher
+# Provider:: docker_rancher
 #
 # Copyright (C) 2015 Jason Kulatunga
 #

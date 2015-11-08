@@ -87,7 +87,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     }
 
     chef.run_list = [
-      'recipe[docker-rancher::default]'
+      'recipe[docker_rancher::default]'
     ]
   end
 end
