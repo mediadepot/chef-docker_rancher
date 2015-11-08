@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
-  config.vm.hostname = 'chef-rancher-berkshelf'
+  config.vm.hostname = 'rancher.local'
 
   # Set the version of chef to install using the vagrant-omnibus plugin
   # NOTE: You will need to install the vagrant-omnibus plugin:
@@ -25,7 +25,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   # If this value is a shorthand to a box in Vagrant Cloud then
   # config.vm.box_url doesn't need to be specified.
-  config.vm.box = 'chef/ubuntu-14.04'
+  config.vm.box = 'threatstack/ubuntu-14.04-amd64' #only chef installed
+  # config.vm.box = 'phusion/ubuntu-14.04-amd64' #only docker installed
+  # config.vm.box = 'williamyeh/ubuntu-trusty64-docker' #only docker installed
+  # config.vm.box = 'tkak/ubuntu-14.04-amd64-chef-dk' #docker1.5 and chef installed
 
 
   # Assign this VM to a host-only network IP, allowing you to access it
@@ -33,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # any other machines on the same network, but cannot be accessed (through this
   # network interface) by any external networks.
   config.vm.network :private_network, type: 'dhcp'
-
+  config.vm.network "forwarded_port", guest: 8080, host: 9090, auto_correct: true
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
@@ -84,7 +87,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     }
 
     chef.run_list = [
-      'recipe[chef-rancher::default]'
+      'recipe[rancher::default]'
     ]
   end
 end
