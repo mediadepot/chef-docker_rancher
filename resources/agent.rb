@@ -24,5 +24,3 @@ attribute :api_token, :kind_of => String, :required => false, :default => ''
 attribute :tag, :kind_of => String, :required => false, :default => 'latest'
 
 attribute :repo, :kind_of => String, :required => false, :default => 'rancher/agent'
-
-attribute :restart_policy, :kind_of => String, :required => false, :default => 'always'
