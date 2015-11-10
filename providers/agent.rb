@@ -27,6 +27,7 @@ action :create do
     tag new_resource.tag
     privileged true
     command "http://#{new_resource.manager_ipaddress}#{new_resource.manager_port.empty? ? '': ":#{new_resource.manager_port}"}"
+    restart_policy new_resource.restart_policy
     env lazy {
           env_settings = []
           if(new_resource.single_node_mode)
