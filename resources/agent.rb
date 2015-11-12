@@ -7,7 +7,7 @@
 # MIT
 #
 
-actions :create, :delete
+actions :create, :delete, :nothing
 
 default_action :create
 
