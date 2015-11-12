@@ -20,7 +20,7 @@ action :create do
     #notifies :redeploy, "docker_container[#{new_resource.name}]"
   end
 
-  #sudo docker run -d --restart=always -p 8080:8080 rancher/server
+  #docker run -e CATTLE_AGENT_IP=10.0.2.15 --privileged -v /var/run/docker.sock:/var/run/docker.sock rancher/agent "http://10.0.2.15:8080"
   # Run container exposing ports
   docker_container new_resource.name do
     repo new_resource.repo
