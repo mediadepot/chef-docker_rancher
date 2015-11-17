@@ -1,11 +1,17 @@
 require 'net/http'
+require_relative 'retry_helper'
+require 'json'
 
 def get(path, params={}, data={}, headers={},opts={})
-  request(:get, path, params, data, headers, opts)
+  RetryHelper.retry_with_delay() do
+    request(:get, path, params, data, headers, opts)
+  end
 end
 
 def post(path, params={}, data={}, headers={}, opts={})
-  request(:post, path, params, data, headers, opts)
+  RetryHelper.retry_with_delay() do
+    request(:post, path, params, data, headers, opts)
+  end
 end
 
 def request(verb, path, params={}, data={}, headers={}, opts={})
@@ -46,13 +52,62 @@ def request(verb, path, params={}, data={}, headers={}, opts={})
       when Net::HTTPRedirection
         redirect = URI.parse(response['location'])
         request(verb, redirect,params, data, headers, opts)
+      when Net::HTTPSuccess
+        success(response)
       else
-        response.body
+        error(response)
     end
   end
 # rescue SocketError, Errno::ECONNREFUSED, EOFError
 #   raise Error::ConnectionError.new(endpoint)
 end
+
+#
+# Parse the response object and manipulate the result based on the given
+# +Content-Type+ header. For now, this method only parses JSON, but it
+# could be expanded in the future to accept other content types.
+#
+# @param [HTTP::Message] response
+#   the response object from the request
+#
+# @return [String, Hash]
+#   the parsed response, as an object
+#
+def success(response)
+  if (response.content_type || '').include?('json')
+    JSON.parse(response.body)
+  else
+    response.body
+  end
+end
+
+#
+# Raise a response error, extracting as much information from the server's
+# response as possible.
+#
+# @raise [Error::HTTPError]
+#
+# @param [HTTP::Message] response
+#   the response object from the request
+#
+def error(response)
+  if (response.content_type || '').include?('json')
+    # Attempt to parse the error as JSON
+    begin
+      json = JSON.parse(response.body)
+
+      if json['type'] == 'error'
+        raise Error::HTTPError.new(json['message'])
+      end
+    rescue JSON::ParserError; end
+  end
+
+  raise Error::HTTPError.new(
+      'status'  => response.code,
+      'message' => response.body
+  )
+end
+
 
 #
 # Construct a URL from the given verb and path. If the request is a GET or

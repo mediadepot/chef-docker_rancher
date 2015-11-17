@@ -1,12 +1,11 @@
 #
 # Cookbook Name:: docker_rancher
-# Provider:: docker_rancher_auth_local
+# Provider:: rancher_auth_local
 #
 # Copyright (C) 2015 Jason Kulatunga
 #
 # MIT
 #
-require 'json'
 require_relative 'http_request'
 require 'chef/provider/lwrp_base'
 
@@ -28,45 +27,67 @@ class Chef
         action :enable do
           if(node['rancher']['flag']['authenticated'])
             Chef::Log.warn('The rancher.flag.authenticated flag is already set. This rancher manager may already require ' +
-                               'authenication. If so, this resource will fail to execute properly. You can fix this by adding '+
+                               'authentication. If so, this resource will fail to execute properly. You can fix this by adding '+
                                '"only_if node[:rancher][:flag][:authenticated]" to the resource')
           end
 
           endpoint = "http://#{new_resource.manager_ipaddress}"
           endpoint += ":#{new_resource.manager_port}" if new_resource.manager_port
-          # first step is to create an api token
-
-          api_data = {'accountId' => '1a1'}
-          api_data['name'] = 'automation_api_key'
-          api_data['description'] = 'Api key used by the docker_rancher cookbook'
-
-          response = post("#{endpoint}/v1/apikeys",{},api_data)
-          payload = JSON.parse(response)
+          # first, find the default environment id
+          env = get_default_environment(endpoint)
+          # second, create a new api key in the environment
+          payload = create_api_key(env)
 
           #now use this api token for all further processing on this chef node
           node.set['rancher']['automation_api_key'] = payload['publicValue']
           node.set['rancher']['automation_api_secret'] = payload['secretValue']
 
           #create the localAuthConfig request
+          enable_local_auth(endpoint)
+
+          node.set['rancher']['flag']['authenticated'] = true
+          new_resource.updated_by_last_action(true)
+        end
+
+        private
+
+        def get_default_environment(endpoint)
+          # first, find the default environment id
+          envs_payload = get("#{endpoint}/v1/projects")
+          Chef::Log.info("#{envs_payload}")
+
+          ndx = envs_payload['data'].find_index{ |env|
+            env['name'] == 'Default'
+          }
+          return envs_payload['data'][ndx]
+        end
+
+        def create_api_key(env)
+          apikeys_endpoint = env['links']['apiKeys']
+          api_data = {}
+          api_data['name'] = 'automation_api_key'
+          api_data['description'] = 'Api key used by the docker_rancher cookbook'
+
+          payload = post(apikeys_endpoint,{},api_data)
+          Chef::Log.info("#{payload}")
+          return payload
+        end
+
+        def enable_local_auth(endpoint)
           local_auth_data = {
               'type' => 'localAuthConfig',
               'accessMode' => 'unrestricted',
               'enabled' => true,
-              'name' => 'Admin',
-              'username' => new_resource.admin_username,
-              'password' => new_resource.admin_password
+              'name' => 'Admin user',
+              'username' => @new_resource.admin_username,
+              'password' => @new_resource.admin_password
           }
-          response = post("#{endpoint}/v1/localAuthConfig",{},local_auth_data,{},{
-               :username=>node['rancher']['automation_api_key'],
-               :password=>node['rancher']['automation_api_secret'],
-           })
-          payload = JSON.parse(response)
+          payload = post("#{endpoint}/v1/localAuthConfig",{},local_auth_data,{},{
+              :username=>node['rancher']['automation_api_key'],
+              :password=>node['rancher']['automation_api_secret'],
+          })
           Chef::Log.info("#{payload}")
-
-          node.set['rancher']['flag']['authenticated'] = true
         end
-
-        private
 
       end
     end

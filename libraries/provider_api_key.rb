@@ -1,12 +1,11 @@
 #
 # Cookbook Name:: docker_rancher
-# Provider:: docker_rancher_auth_local
+# Provider:: rancher_api_key
 #
 # Copyright (C) 2015 Jason Kulatunga
 #
 # MIT
 #
-require 'json'
 require_relative 'http_request'
 require 'chef/provider/lwrp_base'
 
@@ -39,9 +38,10 @@ class Chef
           data['name'] = new_resource.key_name if new_resource.key_name
           data['description'] = new_resource.description if new_resource.description
 
-          response = post("#{endpoint}/v1/apikeys",{},data)
-          payload = JSON.parse(response)
+          payload = post("#{endpoint}/v1/apikeys",{},data)
           Chef::Log.info("#{payload}")
+
+          new_resource.updated_by_last_action(true)
 
         end
 

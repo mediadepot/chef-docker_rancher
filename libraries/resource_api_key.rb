@@ -1,3 +1,11 @@
+#
+# Cookbook Name:: docker_rancher
+# Resource:: rancher_api_key
+#
+# Copyright (C) 2015 Jason Kulatunga
+#
+# MIT
+#
 require 'chef/resource'
 
 class Chef
