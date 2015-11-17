@@ -17,8 +17,14 @@ docker_rancher 'depot_rancher_server' do
     'catalog.url' => 'https://github.com/prachidamle/rancher-catalog.git'
   })
 end
-
-docker_rancher_agent 'depot_rancher_agent' do
+rancher_auth_local 'depot' do
+  admin_password 'd3pot'
   manager_ipaddress node['ipaddress']
-  single_node_mode true
+  manager_port '8080'
 end
+
+
+# docker_rancher_agent 'depot_rancher_agent' do
+#   manager_ipaddress node['ipaddress']
+#   single_node_mode true
+# end
