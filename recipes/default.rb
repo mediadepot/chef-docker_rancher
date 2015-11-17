@@ -19,14 +19,15 @@ rancher_manager 'depot_rancher_server' do
   port '8080'
   notifies :enable, 'rancher_auth_local[depot]', :delayed
 end
+
 rancher_auth_local 'depot' do
   admin_password 'd3pot'
   manager_ipaddress node['ipaddress']
   manager_port '8080'
   action :nothing
   notifies :create, 'rancher_agent[depot_rancher_agent]', :delayed
+  not_if node['rancher']['flag']['authenticated']
 end
-
 
 rancher_agent 'depot_rancher_agent' do
   manager_ipaddress node['ipaddress']
