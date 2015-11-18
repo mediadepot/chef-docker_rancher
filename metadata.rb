@@ -4,6 +4,6 @@ maintainer_email 'jason@thesparktree.com'
 license          'MIT'
 description      'Installs/Configures chef-rancher'
 long_description 'Installs/Configures chef-rancher'
-version          '0.1.4'
+version          '0.1.5'
 
 depends 'docker', '~> 2.2'

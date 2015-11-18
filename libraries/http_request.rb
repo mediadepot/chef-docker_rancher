@@ -97,15 +97,12 @@ def error(response)
       json = JSON.parse(response.body)
 
       if json['type'] == 'error'
-        raise Error::HTTPError.new(json['message'])
+        raise "#{response.code} => #{json}"
       end
     rescue JSON::ParserError; end
   end
 
-  raise Error::HTTPError.new(
-      'status'  => response.code,
-      'message' => response.body
-  )
+  raise "#{response.code} => #{response.body}"
 end
 
 
