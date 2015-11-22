@@ -40,3 +40,7 @@ Include `chef-rancher` in your node's `run_list`:
 ## License and Authors
 
 Author:: YOUR_NAME (<YOUR_EMAIL>)
+
+
+
+knife cookbook site share docker_rancher -o ~/repos
