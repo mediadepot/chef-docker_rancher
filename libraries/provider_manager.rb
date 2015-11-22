@@ -41,13 +41,14 @@ class Chef
             port "#{new_resource.port || '80'}:8080"
             restart_policy new_resource.restart_policy
             env lazy {
-                  env_settings = []
+                  env_settings = new_resource.env || []
                   new_resource.settings.each{|key,value|
                     setting = "CATTLE_#{key.upcase.split('.').join('_')}=#{value}"
                     env_settings.push(setting)
                   }
                   env_settings
                 }
+            volumes new_resource.volumes
           end
 
           new_resource.updated_by_last_action(c.updated_by_last_action?)

@@ -2,9 +2,9 @@ require 'net/http'
 require_relative 'retry_helper'
 require 'json'
 
-def get(path, params={}, data={}, headers={},opts={})
+def get(path, params={}, headers={},opts={})
   RetryHelper.retry_with_delay() do
-    request(:get, path, params, data, headers, opts)
+    request(:get, path, params, {}, headers, opts)
   end
 end
 

@@ -83,6 +83,26 @@ class Chef
               :default => {}
           )
         end
+
+        def env(arg = nil)
+          set_or_return(
+              :env,
+              arg,
+              :required => false,
+              :kind_of => Array,
+              :default => []
+          )
+        end
+
+        def volumes(arg = nil)
+          set_or_return(
+              :env,
+              arg,
+              :required => false,
+              :kind_of => Array,
+              :default => []
+          )
+        end
       end
     end
   end

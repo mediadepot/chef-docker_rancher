@@ -49,7 +49,7 @@ class Chef
             #wait a few seconds while the token is generated
             sleep 5
 
-            token_payload = get("#{endpoint}/v1/registrationtokens/#{payload['id']}",{},registration_data,{},request_options)
+            token_payload = get("#{endpoint}/v1/registrationtokens/#{payload['id']}",{},{},request_options)
             Chef::Log.info("#{token_payload}")
 
             command_url = token_payload['registrationUrl']

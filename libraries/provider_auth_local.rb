@@ -45,6 +45,9 @@ class Chef
           #create the localAuthConfig request
           enable_local_auth(endpoint)
 
+          #set the admin user preferences (default login environment)
+          set_admin_user_preferences(endpoint)
+
           node.set['rancher']['flag']['authenticated'] = true
           new_resource.updated_by_last_action(true)
         end
@@ -85,6 +88,35 @@ class Chef
           payload = post("#{endpoint}/v1/localAuthConfig",{},local_auth_data,{},{
               :username=>node['rancher']['automation_api_key'],
               :password=>node['rancher']['automation_api_secret'],
+          })
+          Chef::Log.info("#{payload}")
+
+        end
+
+        #we need to associate this admin user with the default environment.
+        def set_admin_user_preferences(endpoint)
+          accounts = get("#{endpoint}/v1/accounts",{},{},{
+               :username=>node['rancher']['automation_api_key'],
+               :password=>node['rancher']['automation_api_secret'],
+           })
+
+          default_environment = accounts['data'].first{|account|
+            account['type'] == 'project' && account['name'] == 'Default'
+          }
+
+          admin_account =accounts['data'].first{ |account|
+            account['type'] == 'account' && account['name'] == 'Admin user'
+            #this must the the same as the account name in enable_local_auth()
+          }
+
+          user_pref_data = {
+              :name => 'defaultProjectId',
+              :value => "\"#{default_environment['id']}\"",
+              :accountId => admin_account['id']
+          }
+          payload = post("#{endpoint}/v1/userpreferences",{},user_pref_data,{},{
+            :username=>node['rancher']['automation_api_key'],
+            :password=>node['rancher']['automation_api_secret'],
           })
           Chef::Log.info("#{payload}")
         end
