@@ -15,6 +15,7 @@ def post(path, params={}, data={}, headers={}, opts={})
 end
 
 def request(verb, path, params={}, data={}, headers={}, opts={})
+  puts "Request #{verb}: #{path}"
   # Build the URI and request object from the given information
   uri = build_uri(path, params)
   request = Net::HTTP.const_get(verb.to_s.capitalize).new(uri.request_uri)

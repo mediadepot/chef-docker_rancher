@@ -1,5 +1,5 @@
 class RetryHelper
-  def self.retry_with_delay(retries=5, delay=20)
+  def self.retry_with_delay(retries=10, delay=30)
     attempts ||=retries
     return yield
   rescue => e

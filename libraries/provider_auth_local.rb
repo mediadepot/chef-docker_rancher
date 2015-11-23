@@ -36,17 +36,19 @@ class Chef
           # first, find the default environment id
           env = get_default_environment(endpoint)
           # second, create a new api key in the environment
-          payload = create_api_key(env)
+          api_key = create_api_key(env)
+          # then create an admin api key (only to modify the admin user settings)
+          admin_api_key = create_admin_api_key(endpoint)
 
           #now use this api token for all further processing on this chef node
-          node.set['rancher']['automation_api_key'] = payload['publicValue']
-          node.set['rancher']['automation_api_secret'] = payload['secretValue']
+          node.set['rancher']['automation_api_key'] = api_key['publicValue']
+          node.set['rancher']['automation_api_secret'] = api_key['secretValue']
 
           #create the localAuthConfig request
-          enable_local_auth(endpoint)
+          enable_local_auth(endpoint, admin_api_key)
 
           #set the admin user preferences (default login environment)
-          set_admin_user_preferences(endpoint)
+          set_admin_user_preferences(endpoint, admin_api_key)
 
           node.set['rancher']['flag']['authenticated'] = true
           new_resource.updated_by_last_action(true)
@@ -57,12 +59,25 @@ class Chef
         def get_default_environment(endpoint)
           # first, find the default environment id
           envs_payload = get("#{endpoint}/v1/projects")
-          Chef::Log.info("#{envs_payload}")
+          Chef::Log.info("get_default_environment: #{envs_payload}")
 
           ndx = envs_payload['data'].find_index{ |env|
             env['name'] == 'Default'
           }
           return envs_payload['data'][ndx]
+        end
+
+        def create_admin_api_key(endpoint)
+          apikeys_endpoint = "#{endpoint}/v1/apiKeys"
+          api_data = {
+              'accountId' => '1a1',
+              'name' => 'automation_admin_api_key',
+              'description' => 'Api key used to modify Admin user preferences (default environment)'
+          }
+
+          payload = post(apikeys_endpoint,{},api_data)
+          Chef::Log.info("create_admin_api_key: #{payload}")
+          return payload
         end
 
         def create_api_key(env)
@@ -72,11 +87,11 @@ class Chef
           api_data['description'] = 'Api key used by the docker_rancher cookbook'
 
           payload = post(apikeys_endpoint,{},api_data)
-          Chef::Log.info("#{payload}")
+          Chef::Log.info("create_api_key: #{payload}")
           return payload
         end
 
-        def enable_local_auth(endpoint)
+        def enable_local_auth(endpoint, admin_api_key)
           local_auth_data = {
               'type' => 'localAuthConfig',
               'accessMode' => 'unrestricted',
@@ -85,40 +100,45 @@ class Chef
               'username' => @new_resource.admin_username,
               'password' => @new_resource.admin_password
           }
-          payload = post("#{endpoint}/v1/localAuthConfig",{},local_auth_data,{},{
-              :username=>node['rancher']['automation_api_key'],
-              :password=>node['rancher']['automation_api_secret'],
+          payload = post("#{endpoint}/v1/localauthconfigs",{},local_auth_data,{},{
+            :username => admin_api_key['publicValue'],
+            :password => admin_api_key['secretValue'],
           })
-          Chef::Log.info("#{payload}")
+          Chef::Log.info("enable_local_auth: #{payload}")
 
         end
 
         #we need to associate this admin user with the default environment.
-        def set_admin_user_preferences(endpoint)
-          accounts = get("#{endpoint}/v1/accounts",{},{},{
-               :username=>node['rancher']['automation_api_key'],
-               :password=>node['rancher']['automation_api_secret'],
-           })
+        def set_admin_user_preferences(endpoint, admin_api_key)
+          admin_request_options = {
+              :username => admin_api_key['publicValue'],
+              :password => admin_api_key['secretValue'],
 
-          default_environment = accounts['data'].first{|account|
-            account['type'] == 'project' && account['name'] == 'Default'
           }
 
-          admin_account =accounts['data'].first{ |account|
-            account['type'] == 'account' && account['name'] == 'Admin user'
+          accounts = get("#{endpoint}/v1/accounts",{},{},admin_request_options)
+
+          Chef::Log.info("accounts: #{accounts}")
+
+
+          default_environment = accounts['data'].find {|account|
+            (account['type'] == 'project') && (account['name'] == 'Default')
+          }
+
+          admin_account = accounts['data'].find { |account|
+            (account['type'] == 'account') && (account['name'] == 'Admin user')
             #this must the the same as the account name in enable_local_auth()
           }
 
           user_pref_data = {
               :name => 'defaultProjectId',
-              :value => "\"#{default_environment['id']}\"",
-              :accountId => admin_account['id']
+              :value => "\"#{default_environment['id']}\""
           }
-          payload = post("#{endpoint}/v1/userpreferences",{},user_pref_data,{},{
-            :username=>node['rancher']['automation_api_key'],
-            :password=>node['rancher']['automation_api_secret'],
-          })
-          Chef::Log.info("#{payload}")
+
+          Chef::Log.info("admin account found: #{admin_account}")
+
+          payload = post(admin_account['links']['userPreferences'],{},user_pref_data,{},admin_request_options)
+          Chef::Log.info("set_admin_user_preferences: #{payload}")
         end
 
       end
