@@ -94,9 +94,9 @@ class Chef
           )
         end
 
-        def volumes(arg = nil)
+        def binds(arg = nil)
           set_or_return(
-              :env,
+              :binds,
               arg,
               :required => false,
               :kind_of => Array,

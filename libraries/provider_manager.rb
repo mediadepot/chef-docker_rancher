@@ -48,7 +48,7 @@ class Chef
                   }
                   env_settings
                 }
-            volumes new_resource.volumes
+            binds new_resource.binds
           end
 
           new_resource.updated_by_last_action(c.updated_by_last_action?)

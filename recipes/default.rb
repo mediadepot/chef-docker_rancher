@@ -18,6 +18,7 @@ rancher_manager 'depot_rancher_server' do
   })
   port '8080'
   notifies :enable, 'rancher_auth_local[depot]', :delayed
+  binds ['/etc/profile.d:/etc/profile.d']
 end
 
 rancher_auth_local 'depot' do
