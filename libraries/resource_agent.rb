@@ -88,7 +88,7 @@ class Chef
               arg,
               :required => false,
               :kind_of => Array,
-              :default => ''
+              :default => []
           )
         end
       end
