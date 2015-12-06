@@ -22,7 +22,7 @@ rancher_manager 'depot_rancher_server' do
 end
 
 rancher_auth_local 'depot' do
-  admin_password 'd3pot'
+  admin_password 'depotd3p0!'
   manager_ipaddress node['ipaddress']
   manager_port '8080'
   action :nothing
@@ -34,5 +34,6 @@ rancher_agent 'depot_rancher_agent' do
   manager_ipaddress node['ipaddress']
   single_node_mode true
   manager_port '8080'
+  labels ['depot.container:agentproperty','depot.host:ewre234']
   action :nothing
 end

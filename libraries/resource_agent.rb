@@ -80,6 +80,16 @@ class Chef
               :kind_of => String,
               :default => 'rancher/agent'
           )
+          end
+
+        def labels(arg = nil)
+          set_or_return(
+              :labels,
+              arg,
+              :required => false,
+              :kind_of => Array,
+              :default => ''
+          )
         end
       end
     end

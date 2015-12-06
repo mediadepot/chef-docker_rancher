@@ -79,6 +79,16 @@ class Chef
                   if(new_resource.single_node_mode)
                     env_settings.push("CATTLE_AGENT_IP=#{new_resource.manager_ipaddress}")
                   end
+
+                  if(new_resource.labels)
+                    require 'cgi'
+                    encoded_labels = new_resource.labels.map { |item|
+                      key, val = item.split(':')
+                      "#{CGI.escape(key)}=#{CGI.escape(val)}"
+                    }.join('&')
+                    env_settings.push("CATTLE_HOST_LABELS=#{encoded_labels}")
+                  end
+
                   env_settings
                 }
             binds [ '/var/run/docker.sock:/var/run/docker.sock' ]
