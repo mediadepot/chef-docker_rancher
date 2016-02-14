@@ -1,0 +1,28 @@
+machine:
+  services:
+    - docker
+  environment:
+    CAPSULE_CHEF_SUPERMARKET_USERNAME: analogj
+
+general:
+  branches:
+    only:
+      - master
+
+dependencies:
+  override:
+    - docker info
+    - docker pull analogj/capsulecd:chef
+
+test:
+  override:
+    - env
+    - >
+      docker run -e CIRCLECI
+      -e CI_PULL_REQUEST
+      -e CIRCLE_PROJECT_USERNAME
+      -e CIRCLE_PROJECT_REPONAME
+      -e CAPSULE_SOURCE_GITHUB_ACCESS_TOKEN
+      -e CAPSULE_CHEF_SUPERMARKET_USERNAME
+      -e CAPSULE_CHEF_SUPERMARKET_KEY
+      analogj/capsulecd:chef
