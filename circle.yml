@@ -16,7 +16,6 @@ dependencies:
 
 test:
   override:
-    - env
     - >
       docker run -e CIRCLECI
       -e CI_PULL_REQUEST
