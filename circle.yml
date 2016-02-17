@@ -4,11 +4,6 @@ machine:
   environment:
     CAPSULE_CHEF_SUPERMARKET_USERNAME: analogj
 
-general:
-  branches:
-    only:
-      - master
-
 dependencies:
   override:
     - docker info
