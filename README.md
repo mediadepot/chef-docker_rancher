@@ -1,7 +1,6 @@
 [![Circle CI](https://circleci.com/gh/mediadepot/chef-docker_rancher.svg?style=svg)](https://circleci.com/gh/mediadepot/chef-docker_rancher)
 # chef-rancher-cookbook
 
-
 TODO: Enter the cookbook description here.
 
 ## Supported Platforms
