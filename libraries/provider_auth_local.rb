@@ -51,6 +51,7 @@ class Chef
           set_admin_user_preferences(endpoint, admin_api_key)
 
           node.set['rancher']['flag']['authenticated'] = true
+          node.save
           new_resource.updated_by_last_action(true)
         end
 

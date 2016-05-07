@@ -14,7 +14,7 @@ end
 
 rancher_manager 'depot_rancher_server' do
   settings({
-    'catalog.url' => 'https://github.com/prachidamle/rancher-catalog.git'
+    'catalog.url' => 'name=https://github.com/prachidamle/rancher-catalog.git'
   })
   port '8080'
   notifies :enable, 'rancher_auth_local[depot]', :delayed
