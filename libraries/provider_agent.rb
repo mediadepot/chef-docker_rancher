@@ -91,7 +91,7 @@ class Chef
 
                   env_settings
                 }
-            binds [ '/var/run/docker.sock:/var/run/docker.sock' ]
+            binds [ '/var/run/docker.sock:/var/run/docker.sock', '/var/lib/rancher:/var/lib/rancher']
           end
 
           new_resource.updated_by_last_action(c.updated_by_last_action?)

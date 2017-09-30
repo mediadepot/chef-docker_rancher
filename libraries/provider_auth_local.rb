@@ -41,8 +41,8 @@ class Chef
           admin_api_key = create_admin_api_key(endpoint)
 
           #now use this api token for all further processing on this chef node
-          node.set['rancher']['automation_api_key'] = api_key['publicValue']
-          node.set['rancher']['automation_api_secret'] = api_key['secretValue']
+          node.normal['rancher']['automation_api_key'] = api_key['publicValue']
+          node.normal['rancher']['automation_api_secret'] = api_key['secretValue']
 
           #create the localAuthConfig request
           enable_local_auth(endpoint, admin_api_key)
@@ -50,7 +50,7 @@ class Chef
           #set the admin user preferences (default login environment)
           set_admin_user_preferences(endpoint, admin_api_key)
 
-          node.set['rancher']['flag']['authenticated'] = true
+          node.normal['rancher']['flag']['authenticated'] = true
           new_resource.updated_by_last_action(true)
         end
 

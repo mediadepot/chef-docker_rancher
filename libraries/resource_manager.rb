@@ -50,7 +50,7 @@ class Chef
               arg,
               :required => false,
               :kind_of => String,
-              :default => 'latest'
+              :default => 'stable'
           )
         end
 
